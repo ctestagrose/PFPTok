@@ -123,15 +123,10 @@ class TokenizerManager:
             self,
             sequences,
             w,
-            d,
-            *,
-            min_count_uncommon: int = 2,
-            rare_quantile: float = 0.20
+            d
     ):
         self.w = w
         self.d = d
-        self.min_count_uncommon = min_count_uncommon
-        self.rare_quantile = rare_quantile
         print(f"W: {w}, P: {d}")
         self.special_tokens = ["[CLS]", "[SEP]", "[PAD]", "[MASK]", "[UNK]", "[INTB]", "[INTA]", "[GENE]"]
 
