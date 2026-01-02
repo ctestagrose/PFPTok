@@ -1,17 +1,17 @@
 import hashlib
 from tokenizers import Tokenizer, models, pre_tokenizers
-import math
 from collections import Counter
-from typing import Literal
 from tqdm import tqdm
 
 _CHAR_MAP = {'A': 1, 'C': 2, 'G': 3, 'T': 4, 'N': 5}
 _BASE = 5
 _MOD = (1 << 61) - 1
 
+
 def md5_hash(window: str) -> int:
     h = hashlib.md5(window.encode('utf-8')).hexdigest()
     return int(h, 16)
+
 
 def karp_rabin_hash(window: str) -> int:
     h = 0
@@ -22,16 +22,17 @@ def karp_rabin_hash(window: str) -> int:
 
 def generate_all_kmers(k, alphabet='ATCGN'):
     from itertools import product
-    
+
     all_kmers = []
-    
+
     for length in range(1, k + 1):
         for combination in product(alphabet, repeat=length):
             kmer = ''.join(combination)
             all_kmers.append(kmer)
-    
-    return all_kmers  
-    
+
+    return all_kmers
+
+
 def prefix_free_parse(sequence: str, w: int = 10, d: int = 127, use_simple_hash: bool = True):
     n = len(sequence)
     triggers = []
@@ -44,7 +45,7 @@ def prefix_free_parse(sequence: str, w: int = 10, d: int = 127, use_simple_hash:
         power = pow(_BASE, w - 1, _MOD)
 
         for i in range(1, n - w + 1):
-            left_val  = _CHAR_MAP.get(sequence[i - 1], 0)
+            left_val = _CHAR_MAP.get(sequence[i - 1], 0)
             right_val = _CHAR_MAP.get(sequence[i + w - 1], 0)
 
             h = (h - left_val * power) % _MOD
@@ -55,7 +56,7 @@ def prefix_free_parse(sequence: str, w: int = 10, d: int = 127, use_simple_hash:
 
     else:
         for i in range(n - w + 1):
-            window = sequence[i : i + w]
+            window = sequence[i: i + w]
             if md5_hash(window) % d == 0:
                 triggers.append(i)
 
@@ -79,8 +80,8 @@ def prefix_free_parse(sequence: str, w: int = 10, d: int = 127, use_simple_hash:
             non_overlapping.append(ph[w:] if len(ph) > w else ph)
         return non_overlapping
 
-    return phrases  
-    
+    return phrases
+
 
 class TokenizerManager:
     def __init__(self, vocab_size=None, w=3, d=117):
@@ -95,38 +96,37 @@ class TokenizerManager:
         self.min_count_uncommon = 2
         self.rare_quantile = 0.20
         self.tokenizer = None
-        
+
     def _build_vocab(self, sorted_phrases, k, special_tokens):
         vocab = {}
         next_id = 0
         kmers = generate_all_kmers(k)
-    
+
         for ph in sorted_phrases:
             if ph not in vocab:
                 vocab[ph] = next_id
                 next_id += 1
-    
+
         for kmer in kmers:
             if kmer not in vocab:
                 vocab[kmer] = next_id
                 next_id += 1
-    
+
         for tok in special_tokens:
             if tok not in vocab:
                 vocab[tok] = next_id
                 next_id += 1
-    
+
         return vocab
 
-
     def setup_tokenizer(
-        self,
-        sequences,
-        w,
-        d,
-        *,
-        min_count_uncommon: int = 2,
-        rare_quantile: float = 0.20
+            self,
+            sequences,
+            w,
+            d,
+            *,
+            min_count_uncommon: int = 2,
+            rare_quantile: float = 0.20
     ):
         self.w = w
         self.d = d
@@ -137,32 +137,30 @@ class TokenizerManager:
 
         freq = Counter()
         all_phrases = set()
-        
+
         for seq in tqdm(sequences, desc=f"Setting up tokenizer with {len(sequences)} sequences"):
             for gene in seq:
                 if gene not in self.special_tokens:
                     phrases = prefix_free_parse(gene, self.w, self.d)
                     freq.update(phrases)
                     all_phrases.update(phrases)
-    
+
         self.phrase_freq = dict(freq)
         self.total_phrase_count = sum(freq.values())
 
-
-    
         sorted_phrases = sorted(list(all_phrases))
         vocab = self._build_vocab(sorted_phrases, self.k, self.special_tokens)
-        
+
         print(f"Final vocabulary size: {len(vocab)}")
-    
+
         tokenizer = Tokenizer(models.WordLevel(vocab=vocab, unk_token="[UNK]"))
         tokenizer.pre_tokenizer = pre_tokenizers.Whitespace()
-    
+
         for token in self.special_tokens:
             token_id = tokenizer.encode(token)
             if token_id is None:
                 raise ValueError(f"{token} token was not properly initialized in the tokenizer.")
-    
+
         self.tokenizer = tokenizer
         return tokenizer
 
@@ -175,65 +173,57 @@ class TokenizerManager:
             raise ValueError("Loaded tokenizer does not recognize the [UNK] token.")
         self.tokenizer = tokenizer
         return tokenizer
-        
+
     def encode_sequences(
-        self,
-        sequences,
-        tokenizer,
-        genes_in_this_isolate,
-        split: str = "train",
-        seed: int = None,
+            self,
+            sequences,
+            seed: int = None,
     ):
         import random
         if seed is not None:
             random.seed(seed)
-        
+
         encoded_sequences = []
-        
-        unk_encoding = tokenizer.encode("[UNK]")
-        unk_id = unk_encoding.ids[0] if hasattr(unk_encoding, "ids") else unk_encoding[0]
-        
+
+        unk_id = self.tokenizer.token_to_id("[UNK]")
         excluded = set(self.special_tokens)
         unk_count = 0
         non_unk_count = 0
-        gene_mapping = []
-        
+
         def _ids_from(enc):
             return enc.ids if hasattr(enc, "ids") else enc
-        
+
         for index, entry in enumerate(sequences):
             gene = entry[0]
             encoded = []
-    
+
             if gene not in excluded:
                 phrases = prefix_free_parse(gene, self.w, self.d)
-    
+
                 for phrase in phrases:
                     if not phrase:
                         continue
                     if isinstance(phrase, list):
                         phrase = "".join(phrase)
-    
-                    enc = tokenizer.encode(phrase)
-                    ids = _ids_from(enc)
-    
-                    phrase_is_known = ids and ids[0] != unk_id
-                    
-                    if not phrase_is_known:
+
+                    tok_id = self.tokenizer.token_to_id(phrase)
+                    if tok_id is None:
                         encoded.append(unk_id)
                         unk_count += 1
+                    else:
+                        encoded.append(tok_id)
+                        non_unk_count += 1
             else:
-                ids = _ids_from(tokenizer.encode(gene))
+                ids = _ids_from(self.tokenizer.encode(gene))
                 tok = ids[0] if ids else unk_id
                 encoded.append(tok)
                 if tok == unk_id:
                     unk_count += 1
                 else:
                     non_unk_count += 1
-        
+
             encoded_sequences.append(encoded)
-        
+
         combined_list = [item for sublist in encoded_sequences for item in sublist]
 
-        
-        return combined_list, gene_mapping, (unk_count, non_unk_count)
+        return combined_list, (unk_count, non_unk_count)
