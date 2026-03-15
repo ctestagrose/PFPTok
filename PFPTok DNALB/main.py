@@ -334,21 +334,12 @@ def main():
         w = 100
         d = 4096
 
-        # if task != "eQTL":
-        #     with open(args.json_path+"train.json", "r") as j:
-        #         train_temp = json.load(j)
-
-        #     with open(args.json_path+"valid.json", "r") as j:
-        #         val_temp = json.load(j)
-
-        #     with open(args.json_path+"test.json", "r") as j:
-        #         test_temp = json.load(j)
-        # else:
         train_temp = load_jsonl_gz(args.json_path + "_train.jsonl.gz")
         val_temp = load_jsonl_gz(args.json_path + "_valid.jsonl.gz")
         test_temp = load_jsonl_gz(args.json_path + "_test.jsonl.gz")
 
 
+        # Commented out debugging lines
         # train_temp = train_temp[:100]
         # val_temp = val_temp[:100]
         # test_temp = test_temp[:100]
@@ -454,7 +445,6 @@ def main():
             os.makedirs(save_path, exist_ok=True)
             pfp_tokenizer = PFPTok()
 
-            # Reuse your helper to train/load, but feed raw seqs:
             wrapped_tokenizer, vocab_size = setup_tokenizer_and_wrap(
                 tokenizer_manager=pfp_tokenizer,
                 full_set_seqs=order_dict[amount],
@@ -488,7 +478,6 @@ def main():
                 f.write(f"Number of Positive: {len(positive)}\n")
                 f.write(f"Percentage of Positive: {((len(negative)) / (len(positive) + len(negative))) * 100}\n")
 
-            # -- Wrap as datasets (binary) --
             target_format = "binary"
             
             if args.task != "eQTL":
