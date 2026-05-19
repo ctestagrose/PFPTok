@@ -26,3 +26,22 @@ def main():
 if __name__ == "__main__":
     main()
 ```
+
+## Running Experiments
+1. Curated MTB Gene Classification Experiments
+2. Whole Genome Tokenization/Classfication Experiments
+3. Ablation Experiments
+4. DNALONGBENCH Experiments
+
+### Curated MTB Gene Classification Experiments
+Code for these experiments can be found in the "Curated_Genes_Experiment" directory. 
+Data can be downloaded from "https://github.com/ctestagrose/LLMTB/tree/main/Data"
+
+Running:
+
+
+### Whole Genome Tokenization/Classification Experiment
+
+### Abalation Experiments
+
+### DNALONGBENCH Experimements
