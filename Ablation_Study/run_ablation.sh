@@ -14,9 +14,10 @@ if [[ ! "$STUDY_SIZE" =~ ^(quick|focused|comprehensive)$ ]]; then
 fi
 
 # CONFIGURATION — edit these paths for your environment
-SEQUENCE_DIR="/Users/conrad/Downloads/PFPTok-main/Sample_Data/Train"
-TEST_SEQUENCE_DIR="/Users/conrad/Downloads/PFPTok-main/Sample_Data/Test"
-TARGET_FILE="/Users/conrad/PycharmProjects/PFPTok Repo/Curated_Gene_Experiment/Data/cryptic_targets_all.json"
+SEQUENCE_DIR="/path/to/train"
+TEST_SEQUENCE_DIR="/path/to/test"
+# We can use this for now... 
+TARGET_FILE="Curated_Gene_Experiment/Data/cryptic_targets_all.json"
 
 OUTPUT_DIR="./ablation_results/${TOKENIZER_TYPE}_${STUDY_SIZE}_$(date +%Y%m%d_%H%M%S)"
 
@@ -138,17 +139,17 @@ STATUS=$?
 
 if [ $STATUS -eq 0 ]; then
     echo ""
-    echo "✓ ${TOKENIZER_TYPE} ablation completed!"
+    echo "${TOKENIZER_TYPE} ablation completed!"
     echo ""
     echo "Results:"
-    echo " * JSON    -> $OUTPUT_DIR/ablation_results_${TOKENIZER_TYPE}.json"
-    echo " * CSV     -> $OUTPUT_DIR/ablation_results_${TOKENIZER_TYPE}.csv"
-    echo " * Summary -> $OUTPUT_DIR/summary_${TOKENIZER_TYPE}.txt"
+    echo " * JSON    : $OUTPUT_DIR/ablation_results_${TOKENIZER_TYPE}.json"
+    echo " * CSV     : $OUTPUT_DIR/ablation_results_${TOKENIZER_TYPE}.csv"
+    echo " * Summary : $OUTPUT_DIR/summary_${TOKENIZER_TYPE}.txt"
 
     if [ -f "analyze_ablation_results.py" ]; then
         echo ""
         echo "Running analysis..."
-        python analyze_ablation_results.py "$OUTPUT_DIR" || echo "⚠ Analysis failed (results still saved)"
+        python analyze_ablation_results.py "$OUTPUT_DIR" || echo "Analysis failed (results still saved)"
     fi
 else
     echo "ERROR: Ablation study failed"
