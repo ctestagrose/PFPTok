@@ -11,9 +11,9 @@ import pandas as pd
 import numpy as np
 import traceback
 import gc
-
 from ablation_utils.data_prep import DataPreparer
 from ablation_utils.Sequence_Processor import SequenceProcessor
+
 
 def _import_unigram():
     from Tokenizers.Unigram_Tokenizer import TokenizerManagerUnigram
@@ -470,10 +470,7 @@ def run_single_config(tokenizer_type, config, data, args):
     return result
 
 
-# ---------------------------------------------------------------------------
-# Serialization helpers
-# ---------------------------------------------------------------------------
-
+# Serialization helper
 def convert_to_serializable(obj):
     if isinstance(obj, np.integer):
         return int(obj)
@@ -493,10 +490,7 @@ def convert_to_serializable(obj):
     return obj
 
 
-# ---------------------------------------------------------------------------
 # Result persistence
-# ---------------------------------------------------------------------------
-
 _PRIORITY_COLS = {
     "unigram": [
         "vocab_size", "max_sentencepiece_length", "model_type", "chunk_size",
@@ -579,10 +573,7 @@ def save_results(results, output_dir, tokenizer_type):
     print(f" * Saved summary -> {sp}")
 
 
-# ---------------------------------------------------------------------------
 # Comparison table
-# ---------------------------------------------------------------------------
-
 def print_comparison_table(results, tokenizer_type):
     ok = [r for r in results if r.get("status") == "success"]
     if not ok:
@@ -615,10 +606,7 @@ def print_comparison_table(results, tokenizer_type):
     print("=" * 80)
 
 
-# ---------------------------------------------------------------------------
 # Main
-# ---------------------------------------------------------------------------
-
 def main():
     args = parse_arguments()
     tt = args.tokenizer_type
