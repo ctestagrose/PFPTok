@@ -28,7 +28,10 @@ if __name__ == "__main__":
 ```
 
 ## Running Experiments
-1. Curated MTB Gene Classification Experiments
+1. Curated MTB Gene Classification Experiments (MTB AMR classification on a curated list of genes using PFPTok, BPE, and Unigram)
+   * Code for these experiments can be found in the "Curated_Genes_Experiment" directory. 
+   * Preprocessed data can be downloaded from the LLMTB repository (https://github.com/ctestagrose/LLMTB/tree/main/Data)
+
 2. Whole Genome Tokenization/Classfication Experiments
 3. Ablation Experiments
    * The 10 example isolate files found in Sample_Data can be used to run the ablation script.
@@ -61,17 +64,4 @@ if __name__ == "__main__":
      ```
    * Results will be printed to terminal and saved to the defined output location.
      
-5. DNALONGBENCH Experiments
-
-### Curated MTB Gene Classification Experiments
-Code for these experiments can be found in the "Curated_Genes_Experiment" directory. 
-Data can be downloaded from "https://github.com/ctestagrose/LLMTB/tree/main/Data"
-
-Running:
-
-
-### Whole Genome Tokenization/Classification Experiment
-
-### Abalation Experiments
-
-### DNALONGBENCH Experimements
+4. DNALONGBENCH Experiments
