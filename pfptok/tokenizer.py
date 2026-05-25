@@ -20,19 +20,6 @@ def karp_rabin_hash(window: str) -> int:
     return h
 
 
-def generate_all_kmers(k, alphabet='ATCGN'):
-    from itertools import product
-
-    all_kmers = []
-
-    for length in range(1, k + 1):
-        for combination in product(alphabet, repeat=length):
-            kmer = ''.join(combination)
-            all_kmers.append(kmer)
-
-    return all_kmers
-
-
 def prefix_free_parse(sequence: str, w: int = 10, d: int = 127, use_simple_hash: bool = True):
     n = len(sequence)
     triggers = []
@@ -100,16 +87,10 @@ class TokenizerManager:
     def _build_vocab(self, sorted_phrases, k, special_tokens):
         vocab = {}
         next_id = 0
-        kmers = generate_all_kmers(k)
 
         for ph in sorted_phrases:
             if ph not in vocab:
                 vocab[ph] = next_id
-                next_id += 1
-
-        for kmer in kmers:
-            if kmer not in vocab:
-                vocab[kmer] = next_id
                 next_id += 1
 
         for tok in special_tokens:
