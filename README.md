@@ -18,13 +18,22 @@ The window size `w` and divisor `d` together control phrase granularity: smaller
 
 ## Installation
 
+### pip
+
 ```bash
 git clone https://github.com/ctestagrose/PFPTok.git
 cd PFPTok
-pip install tokenizers tqdm
+pip install .
 ```
 
-> **Note:** The included `requirements.txt` reflects a full research environment. The core dependencies for PFPTok are just `tokenizers` and `tqdm`.
+### conda / mamba
+
+```bash
+git clone https://github.com/ctestagrose/PFPTok.git
+cd PFPTok
+conda env create -f environment.yml
+conda activate pfp-tok
+```
 
 ## Usage
 
@@ -41,7 +50,7 @@ sequences = [
 ]
 
 tm = TokenizerManager()
-tokenizer = tm.setup_tokenizer(sequences, w=6, d=117)
+tokenizer = tm.setup_tokenizer(sequences, w=6, p=117)
 
 print(f"Vocabulary size: {tokenizer.get_vocab_size()}")
 ```
@@ -75,9 +84,9 @@ loaded = tm2.load_tokenizer("my_tokenizer.json")
 The `prefix_free_parse` function can be used standalone to inspect how a sequence gets segmented:
 
 ```python
-from src.PFP_Tokenizer import prefix_free_parse
+from pfptok import prefix_free_parse
 
-phrases = prefix_free_parse("ACGTACGTACGTACGTACGT", w=4, d=7)
+phrases = prefix_free_parse("ACGTACGTACGTACGTACGT", w=4, p=7)
 print(phrases)  # List of non-overlapping phrase strings
 ```
 
@@ -92,7 +101,7 @@ print(phrases)  # List of non-overlapping phrase strings
 | `save_tokenizer(tokenizer, path)` | Save a trained tokenizer to a JSON file. |
 | `load_tokenizer(path)` | Load a tokenizer from a JSON file. Returns a `tokenizers.Tokenizer`. |
 
-### `prefix_free_parse(sequence, w, d, use_simple_hash=True)`
+### `prefix_free_parse(sequence, w, p, use_simple_hash=True)`
 
 Parse a single sequence into non-overlapping phrases.
 
@@ -100,7 +109,7 @@ Parse a single sequence into non-overlapping phrases.
 |-----------|------|---------|-------------|
 | `sequence` | `str` | — | Input DNA sequence |
 | `w` | `int` | `10` | Window size for the rolling hash |
-| `d` | `int` | `127` | Hash divisor — triggers occur where `hash mod d == 0` |
+| `p` | `int` | `127` | Hash divisor — triggers occur where `hash mod p == 0` |
 | `use_simple_hash` | `bool` | `True` | Use Karp-Rabin rolling hash (`True`) or MD5 (`False`) |
 
 ### Parameters
@@ -108,7 +117,7 @@ Parse a single sequence into non-overlapping phrases.
 | Parameter | Controls | Guidance                                                                                                                               |
 |-----------|----------|----------------------------------------------------------------------------------------------------------------------------------------|
 | `w` | Rolling hash window size | Larger values produce fewer, more context-dependent trigger points                                                                     |
-| `d` | Hash modulus / trigger frequency | Larger values -> fewer triggers -> longer phrases -> smaller vocab. Smaller values -> more triggers -> shorter phrases -> larger vocab |
+| `p` | Hash modulus / trigger frequency | Larger values -> fewer triggers -> longer phrases -> smaller vocab. Smaller values -> more triggers -> shorter phrases -> larger vocab |
 
 ## Experiments
 

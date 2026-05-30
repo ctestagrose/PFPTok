@@ -1,4 +1,5 @@
 import hashlib
+import json
 from tokenizers import Tokenizer, models, pre_tokenizers
 from collections import Counter
 from tqdm import tqdm
@@ -20,13 +21,13 @@ def karp_rabin_hash(window: str) -> int:
     return h
 
 
-def prefix_free_parse(sequence: str, w: int = 10, d: int = 127, use_simple_hash: bool = True):
+def prefix_free_parse(sequence: str, w: int = 10, p: int = 127, use_simple_hash: bool = True):
     n = len(sequence)
     triggers = []
 
     if use_simple_hash:
         h = karp_rabin_hash(sequence[:w])
-        if h % d == 0:
+        if h % p == 0:
             triggers.append(0)
 
         power = pow(_BASE, w - 1, _MOD)
@@ -38,13 +39,13 @@ def prefix_free_parse(sequence: str, w: int = 10, d: int = 127, use_simple_hash:
             h = (h - left_val * power) % _MOD
             h = (h * _BASE + right_val) % _MOD
 
-            if h % d == 0:
+            if h % p == 0:
                 triggers.append(i)
 
     else:
         for i in range(n - w + 1):
             window = sequence[i: i + w]
-            if md5_hash(window) % d == 0:
+            if md5_hash(window) % p == 0:
                 triggers.append(i)
 
     if not triggers or triggers[0] != 0:
@@ -71,10 +72,10 @@ def prefix_free_parse(sequence: str, w: int = 10, d: int = 127, use_simple_hash:
 
 
 class TokenizerManager:
-    def __init__(self, vocab_size=None, w=3, d=117):
+    def __init__(self, vocab_size=None, w=3, p=117):
         self.vocab_size = vocab_size
         self.w = w
-        self.d = d
+        self.p = p
         self.k = 6
         self.special_tokens = []
         self.phrase_freq: dict[str, int] = {}
@@ -104,11 +105,10 @@ class TokenizerManager:
             self,
             sequences,
             w,
-            d
+            p
     ):
         self.w = w
-        self.d = d
-        print(f"W: {w}, P: {d}")
+        self.p = p
         self.special_tokens = ["[CLS]", "[SEP]", "[PAD]", "[MASK]", "[UNK]", "[INTB]", "[INTA]", "[GENE]"]
 
         freq = Counter()
@@ -117,7 +117,7 @@ class TokenizerManager:
         for seq in tqdm(sequences, desc=f"Setting up tokenizer with {len(sequences)} sequences"):
             for gene in seq:
                 if gene not in self.special_tokens:
-                    phrases = prefix_free_parse(gene, self.w, self.d)
+                    phrases = prefix_free_parse(gene, self.w, self.p)
                     freq.update(phrases)
                     all_phrases.update(phrases)
 
@@ -141,10 +141,25 @@ class TokenizerManager:
         return tokenizer
 
     def save_tokenizer(self, tokenizer, save_path):
-        tokenizer.save(save_path)
+        payload = {
+            "w": self.w,
+            "p": self.p,
+            "tokenizer": json.loads(tokenizer.to_str()),
+        }
+        with open(save_path, "w") as f:
+            json.dump(payload, f)
 
     def load_tokenizer(self, load_path):
-        tokenizer = Tokenizer.from_file(load_path)
+        with open(load_path) as f:
+            data = json.load(f)
+
+        if "w" in data and "p" in data:
+            self.w = data["w"]
+            self.p = data["p"]
+            tokenizer = Tokenizer.from_str(json.dumps(data["tokenizer"]))
+        else:
+            tokenizer = Tokenizer.from_str(json.dumps(data))
+
         if tokenizer.encode("[UNK]") is None:
             raise ValueError("Loaded tokenizer does not recognize the [UNK] token.")
         self.tokenizer = tokenizer
@@ -174,7 +189,7 @@ class TokenizerManager:
             encoded = []
 
             if gene not in excluded:
-                phrases = prefix_free_parse(gene, self.w, self.d)
+                phrases = prefix_free_parse(gene, self.w, self.p)
 
                 for phrase in phrases:
                     if not phrase:

@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pfptok"
+version = "0.1.0"
+description = "Dictionary-compression genomic tokenization via prefix-free parsing"
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.9"
+dependencies = [
+    "tokenizers>=0.13",
+    "tqdm>=4.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.0"]
+
+[project.urls]
+Repository = "https://github.com/ctestagrose/PFPTok"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["pfptok*"]
