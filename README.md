@@ -27,6 +27,8 @@ The window size `w` and divisor `d` together control phrase granularity: smaller
 ```bash
 git clone https://github.com/ctestagrose/PFPTok.git
 cd PFPTok
+python3 -m venv .venv
+source .venv/bin/activate
 pip install .
 ```
 
