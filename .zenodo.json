@@ -1,0 +1,11 @@
+{
+  "title": "PFPTok: genomic tokenization via Prefix-Free Parsing",
+  "description": "PFPTok is a genomic tokenizer based on Prefix-Free Parsing (PFP), in which the PFP dictionary serves as the model vocabulary and the parse serves as the tokenized sequence.",
+  "upload_type": "software",
+  "license": "GPL-3.0-only",
+  "creators": [
+    { "name": "Testagrose, Conrad", "affiliation": "University of Florida" },
+    { "name": "Varki, Rahul", "affiliation": "University of Florida" },
+    { "name": "Boucher, Christina", "affiliation": "University of Florida" }
+  ]
+}
