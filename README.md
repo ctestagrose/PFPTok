@@ -128,3 +128,6 @@ Parse a single sequence into non-overlapping phrases.
 ## Experiments
 
 Experiment code for evaluating PFPTok against BPE and Unigram across MTB antibiotic resistance classification, DNALongBench benchmarks, and hyperparameter ablation studies is available in the [PFPTok-Experiments](https://github.com/ctestagrose/PFPTok-Experiments) repository.
+
+
+PFPTok is released under the [GNU General Public License v3.0](LICENSE) (GPL-3.0).
