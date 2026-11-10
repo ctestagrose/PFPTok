@@ -1,6 +1,6 @@
 # PFPTok
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/downloads/release/python-3110/)
 [![CI](https://github.com/ctestagrose/PFPTok/actions/workflows/ci.yml/badge.svg)](https://github.com/ctestagrose/PFPTok/actions/workflows/ci.yml)
 
